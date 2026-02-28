@@ -556,14 +556,24 @@ export default function VaultPage() {
         <p style={{ marginTop: "24px", fontSize: "10px", color: "#00ff4130", letterSpacing: "3px", textAlign: "center" }}>
           SERVER SEES NOTHING · AES-GCM · SHA-256 · 24H AUTO-EXPIRY
         </p>
-        <a
-          href="/terms"
-          style={{ marginTop: "12px", fontSize: "10px", color: "#00ff4140", letterSpacing: "3px", textDecoration: "none", fontFamily: "'Share Tech Mono', monospace", transition: "color 0.2s" }}
-          onMouseEnter={(e) => ((e.target as HTMLAnchorElement).style.color = "#00ff41")}
-          onMouseLeave={(e) => ((e.target as HTMLAnchorElement).style.color = "#00ff4140")}
-        >
-          TERMS &amp; CONDITIONS
-        </a>
+        <div style={{ display: "flex", gap: "32px", marginTop: "12px", flexWrap: "wrap", justifyContent: "center" }}>
+          <a
+            href="/terms"
+            style={{ fontSize: "10px", color: "#00ff4140", letterSpacing: "3px", textDecoration: "none", fontFamily: "'Share Tech Mono', monospace", transition: "color 0.2s" }}
+            onMouseEnter={(e) => ((e.target as HTMLAnchorElement).style.color = "#00ff41")}
+            onMouseLeave={(e) => ((e.target as HTMLAnchorElement).style.color = "#00ff4140")}
+          >
+            TERMS &amp; CONDITIONS
+          </a>
+          <a
+            href="/privacy"
+            style={{ fontSize: "10px", color: "#00ff4140", letterSpacing: "3px", textDecoration: "none", fontFamily: "'Share Tech Mono', monospace", transition: "color 0.2s" }}
+            onMouseEnter={(e) => ((e.target as HTMLAnchorElement).style.color = "#00ff41")}
+            onMouseLeave={(e) => ((e.target as HTMLAnchorElement).style.color = "#00ff4140")}
+          >
+            PRIVACY POLICY
+          </a>
+        </div>
 
       </main>
     </>
