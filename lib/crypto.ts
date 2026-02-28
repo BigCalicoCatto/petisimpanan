@@ -96,9 +96,9 @@ function bufToBase64(buf: Uint8Array): string {
   return btoa(binary);
 }
 
-function base64ToBuf(b64: string): Uint8Array {
+function base64ToBuf(b64: string): Uint8Array<ArrayBuffer> {
   const binary = atob(b64);
-  const buf = new Uint8Array(binary.length);
+  const buf = new Uint8Array(binary.length) as Uint8Array<ArrayBuffer>;
   for (let i = 0; i < binary.length; i++) {
     buf[i] = binary.charCodeAt(i);
   }
