@@ -167,7 +167,7 @@ export default function TermsPage() {
         <hr className="divider" />
 
         <p style={{ fontSize: "11px", color: "#00ff4140", letterSpacing: "2px", marginTop: "40px" }}>
-          If you have any questions about these Terms, you may contact us through the platform.
+          These Terms are final. No correspondence will be entertained.
         </p>
 
         <a href="/" className="back-link" style={{ marginTop: "40px" }}>&lt; BACK TO VAULT</a>
