@@ -18,7 +18,6 @@ function MatrixRain() {
       canvas.height = window.innerHeight;
     };
     resize();
-    window.addEventListener("resize", resize);
 
     const chars =
       "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -29,7 +28,6 @@ function MatrixRain() {
     const draw = () => {
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
       ctx.font = `${fontSize}px monospace`;
 
       for (let i = 0; i < drops.length; i++) {
@@ -37,20 +35,16 @@ function MatrixRain() {
         const x = i * fontSize;
         const y = drops[i] * fontSize;
 
-        // Head char is bright white
         if (drops[i] * fontSize > canvas.height * 0.98 || Math.random() > 0.975) {
           ctx.fillStyle = "#ffffff";
         } else {
-          // Vary green brightness
           const brightness = Math.floor(Math.random() * 155 + 100);
           ctx.fillStyle = `rgb(0, ${brightness}, 0)`;
         }
 
         ctx.fillText(char, x, y);
 
-        if (y > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
+        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
       }
     };
@@ -80,18 +74,126 @@ function MatrixRain() {
   );
 }
 
-// --- Glitch Text ---
 function GlitchText({ text }: { text: string }) {
   return (
-    <span className="relative inline-block glitch" data-text={text}>
+    <span className="glitch" data-text={text}>
       {text}
     </span>
+  );
+}
+
+// --- T&C Popup ---
+function TermsPopup({ onAccept }: { onAccept: () => void }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 600);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{
+        background: "rgba(0,0,0,0.92)",
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.6s ease",
+      }}
+    >
+      <div
+        style={{
+          border: "1px solid #00ff41",
+          boxShadow: "0 0 40px #00ff4140, inset 0 0 20px #00ff4108",
+          background: "rgba(0,8,0,0.97)",
+          maxWidth: "480px",
+          width: "100%",
+          padding: "40px 32px",
+          fontFamily: "'Share Tech Mono', monospace",
+        }}
+      >
+        <div style={{ fontSize: "11px", color: "#00ff4160", letterSpacing: "4px", marginBottom: "24px" }}>
+          SYSTEM INITIALIZING<span className="blink">_</span>
+        </div>
+
+        <div
+          style={{
+            fontFamily: "'VT323', monospace",
+            fontSize: "clamp(28px, 6vw, 42px)",
+            color: "#00ff41",
+            textShadow: "0 0 20px #00ff41, 0 0 40px #00ff41",
+            letterSpacing: "6px",
+            marginBottom: "8px",
+          }}
+        >
+          <GlitchText text="PETI SIMPANAN" />
+        </div>
+
+        <div style={{ fontSize: "10px", color: "#00ff4150", letterSpacing: "3px", marginBottom: "28px" }}>
+          ZERO-KNOWLEDGE ENCRYPTED VAULT
+        </div>
+
+        <div
+          style={{
+            fontSize: "12px",
+            color: "#00ff4190",
+            lineHeight: "1.8",
+            marginBottom: "28px",
+            borderTop: "1px solid #00ff4120",
+            borderBottom: "1px solid #00ff4120",
+            padding: "20px 0",
+          }}
+        >
+          <p style={{ marginBottom: "12px" }}>&gt; By entering, you acknowledge and agree:</p>
+          <p style={{ marginBottom: "8px", paddingLeft: "12px" }}>— This service stores encrypted messages only. We never see your plaintext or password.</p>
+          <p style={{ marginBottom: "8px", paddingLeft: "12px" }}>— Messages self-destruct after retrieval or within 24 hours.</p>
+          <p style={{ marginBottom: "8px", paddingLeft: "12px" }}>— You will not use this service for illegal, harmful, or malicious purposes.</p>
+          <p style={{ paddingLeft: "12px" }}>— We are not liable for any misuse of this platform.</p>
+        </div>
+
+        <p style={{ fontSize: "11px", color: "#00ff4160", marginBottom: "24px" }}>
+          Full terms at{" "}
+          <a href="/terms" target="_blank" style={{ color: "#00ff41", textDecoration: "underline" }}>
+            /terms
+          </a>
+        </p>
+
+        <button
+          onClick={onAccept}
+          style={{
+            width: "100%",
+            background: "transparent",
+            border: "1px solid #00ff41",
+            color: "#00ff41",
+            fontFamily: "'Share Tech Mono', monospace",
+            fontSize: "14px",
+            padding: "14px",
+            cursor: "pointer",
+            letterSpacing: "4px",
+            textTransform: "uppercase",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            (e.target as HTMLButtonElement).style.background = "#00ff41";
+            (e.target as HTMLButtonElement).style.color = "#000";
+            (e.target as HTMLButtonElement).style.boxShadow = "0 0 20px #00ff41";
+          }}
+          onMouseLeave={(e) => {
+            (e.target as HTMLButtonElement).style.background = "transparent";
+            (e.target as HTMLButtonElement).style.color = "#00ff41";
+            (e.target as HTMLButtonElement).style.boxShadow = "none";
+          }}
+        >
+          [ ACCEPT &amp; ENTER ]
+        </button>
+      </div>
+    </div>
   );
 }
 
 type Mode = "store" | "retrieve";
 
 export default function VaultPage() {
+  const [accepted, setAccepted] = useState(false);
   const [mode, setMode] = useState<Mode>("store");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -101,6 +203,17 @@ export default function VaultPage() {
   }>({ type: "idle", text: "" });
   const [decryptedMessage, setDecryptedMessage] = useState("");
   const [showDecrypted, setShowDecrypted] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("ps-accepted") === "true") {
+      setAccepted(true);
+    }
+  }, []);
+
+  const handleAccept = () => {
+    sessionStorage.setItem("ps-accepted", "true");
+    setAccepted(true);
+  };
 
   const handleStore = async () => {
     if (!password || !message) {
@@ -118,10 +231,7 @@ export default function VaultPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Unknown error");
-      setStatus({
-        type: "success",
-        text: "> MESSAGE STORED. SELF-DESTRUCTS IN 24H.",
-      });
+      setStatus({ type: "success", text: "> MESSAGE STORED. SELF-DESTRUCTS IN 24H." });
       setPassword("");
       setMessage("");
     } catch (err: unknown) {
@@ -148,10 +258,7 @@ export default function VaultPage() {
       const plaintext = await decryptMessage(data.encrypted, data.iv, password);
       setDecryptedMessage(plaintext);
       setShowDecrypted(true);
-      setStatus({
-        type: "success",
-        text: "> MESSAGE RETRIEVED. IT HAS BEEN DESTROYED.",
-      });
+      setStatus({ type: "success", text: "> MESSAGE RETRIEVED. IT HAS BEEN DESTROYED." });
       setPassword("");
     } catch (err: unknown) {
       setStatus({
@@ -176,31 +283,27 @@ export default function VaultPage() {
 
         .glitch {
           color: #00ff41;
-          text-shadow:
-            0 0 10px #00ff41,
-            0 0 20px #00ff41,
-            0 0 40px #00ff41;
+          text-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 40px #00ff41;
           animation: flicker 4s infinite;
         }
 
         @keyframes flicker {
           0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-            text-shadow:
-              0 0 10px #00ff41,
-              0 0 20px #00ff41,
-              0 0 40px #00ff41;
+            text-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 40px #00ff41;
           }
-          20%, 24%, 55% {
-            text-shadow: none;
-            color: #003b0e;
-          }
+          20%, 24%, 55% { text-shadow: none; color: #003b0e; }
+        }
+
+        .blink { animation: blink 1s step-end infinite; }
+
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
 
         .terminal-box {
           border: 1px solid #00ff41;
-          box-shadow:
-            0 0 8px #00ff4150,
-            inset 0 0 8px #00ff4108;
+          box-shadow: 0 0 8px #00ff4150, inset 0 0 8px #00ff4108;
           background: rgba(0, 10, 0, 0.85);
         }
 
@@ -218,9 +321,7 @@ export default function VaultPage() {
           transition: border-color 0.2s;
         }
 
-        .terminal-input::placeholder {
-          color: #00ff4140;
-        }
+        .terminal-input::placeholder { color: #00ff4140; }
 
         .terminal-input:focus {
           border-bottom-color: #00ff41;
@@ -238,24 +339,12 @@ export default function VaultPage() {
           letter-spacing: 2px;
           text-transform: uppercase;
           transition: all 0.15s;
-          position: relative;
           overflow: hidden;
         }
 
-        .terminal-btn:hover {
-          background: #00ff41;
-          color: #000;
-          box-shadow: 0 0 20px #00ff41;
-        }
-
-        .terminal-btn:active {
-          transform: scale(0.97);
-        }
-
-        .terminal-btn:disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-        }
+        .terminal-btn:hover { background: #00ff41; color: #000; box-shadow: 0 0 20px #00ff41; }
+        .terminal-btn:active { transform: scale(0.97); }
+        .terminal-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
         .tab-btn {
           background: transparent;
@@ -264,11 +353,13 @@ export default function VaultPage() {
           color: #00ff4170;
           font-family: 'Share Tech Mono', monospace;
           font-size: 13px;
-          padding: 8px 20px;
+          padding: 14px 0;
           cursor: pointer;
           letter-spacing: 2px;
           text-transform: uppercase;
           transition: all 0.2s;
+          flex: 1;
+          text-align: center;
         }
 
         .tab-btn.active {
@@ -277,15 +368,11 @@ export default function VaultPage() {
           text-shadow: 0 0 8px #00ff41;
         }
 
-        .tab-btn:hover:not(.active) {
-          color: #00ff4199;
-        }
+        .tab-btn:hover:not(.active) { color: #00ff4199; }
 
         .scan-line {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
+          top: 0; left: 0; right: 0;
           height: 2px;
           background: linear-gradient(90deg, transparent, #00ff4140, transparent);
           animation: scan 8s linear infinite;
@@ -298,11 +385,7 @@ export default function VaultPage() {
           100% { top: 100vh; }
         }
 
-        .status-text {
-          font-size: 12px;
-          letter-spacing: 1px;
-          min-height: 20px;
-        }
+        .status-text { font-size: 12px; letter-spacing: 1px; min-height: 20px; }
 
         .decrypted-box {
           border: 1px solid #00ff4160;
@@ -341,204 +424,147 @@ export default function VaultPage() {
       <MatrixRain />
       <div className="scan-line" />
 
-      <main
-        className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12"
-      >
+      {!accepted && <TermsPopup onAccept={handleAccept} />}
+
+      <main className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-16">
+
         {/* Header */}
-        <div className="text-center mb-10 select-none">
+        <div className="text-center mb-12 select-none">
           <div
             style={{
               fontFamily: "'VT323', monospace",
-              fontSize: "clamp(36px, 8vw, 72px)",
+              fontSize: "clamp(52px, 12vw, 96px)",
               lineHeight: 1,
               letterSpacing: "8px",
               color: "#00ff41",
               textShadow: "0 0 20px #00ff41, 0 0 40px #00ff41",
-              marginBottom: "8px",
+              marginBottom: "10px",
             }}
           >
             <GlitchText text="PETI SIMPANAN" />
           </div>
-          <p
-            style={{
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "11px",
-              color: "#00ff4170",
-              letterSpacing: "4px",
-              textTransform: "uppercase",
-            }}
-          >
+          <p style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "11px", color: "#00ff4170", letterSpacing: "4px", textTransform: "uppercase" }}>
             zero-knowledge · burn-after-reading · encrypted vault
           </p>
         </div>
 
-        {/* Card */}
-        <div className="terminal-box w-full max-w-lg p-8">
-          {/* Tabs */}
-          <div className="flex border-b border-green-900 mb-8">
+        {/* Main Card */}
+        <div className="terminal-box w-full max-w-2xl" style={{ minHeight: "520px" }}>
+
+          {/* Tabs — two equal columns */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", borderBottom: "1px solid #00ff4125" }}>
             <button
               className={`tab-btn ${mode === "store" ? "active" : ""}`}
-              onClick={() => {
-                setMode("store");
-                setStatus({ type: "idle", text: "" });
-                setShowDecrypted(false);
-              }}
+              onClick={() => { setMode("store"); setStatus({ type: "idle", text: "" }); setShowDecrypted(false); }}
             >
-              [STORE]
+              [ STORE ]
             </button>
             <button
               className={`tab-btn ${mode === "retrieve" ? "active" : ""}`}
-              onClick={() => {
-                setMode("retrieve");
-                setStatus({ type: "idle", text: "" });
-                setShowDecrypted(false);
-              }}
+              onClick={() => { setMode("retrieve"); setStatus({ type: "idle", text: "" }); setShowDecrypted(false); }}
             >
-              [RETRIEVE]
+              [ RETRIEVE ]
             </button>
           </div>
 
-          {mode === "store" ? (
-            <div className="space-y-6">
-              <div>
-                <label
-                  style={{ fontSize: "11px", letterSpacing: "3px", color: "#00ff4180" }}
-                >
-                  PASSWORD
-                </label>
-                <input
-                  type="password"
-                  className="terminal-input mt-2"
-                  placeholder="enter encryption key..."
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="new-password"
-                />
-              </div>
-              <div>
-                <label
-                  style={{ fontSize: "11px", letterSpacing: "3px", color: "#00ff4180" }}
-                >
-                  SECRET MESSAGE
-                </label>
-                <textarea
-                  className="terminal-input mt-2 resize-none"
-                  placeholder="enter message to encrypt..."
-                  rows={5}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  style={{
-                    background: "transparent",
-                    border: "1px solid #00ff4160",
-                    color: "#00ff41",
-                    fontFamily: "'Share Tech Mono', monospace",
-                    outline: "none",
-                    width: "100%",
-                    padding: "10px",
-                    fontSize: "14px",
-                    marginTop: "8px",
-                  }}
-                />
-              </div>
-              <button
-                className="terminal-btn w-full"
-                onClick={handleStore}
-                disabled={status.type === "loading"}
-              >
-                ENCRYPT &amp; STORE
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div>
-                <label
-                  style={{ fontSize: "11px", letterSpacing: "3px", color: "#00ff4180" }}
-                >
-                  PASSWORD
-                </label>
-                <input
-                  type="password"
-                  className="terminal-input mt-2"
-                  placeholder="enter decryption key..."
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (showDecrypted) {
-                      setShowDecrypted(false);
-                      setDecryptedMessage("");
-                    }
-                  }}
-                  autoComplete="current-password"
-                />
-              </div>
-              <button
-                className="terminal-btn w-full"
-                onClick={handleRetrieve}
-                disabled={status.type === "loading"}
-              >
-                RETRIEVE &amp; DESTROY
-              </button>
-
-              {showDecrypted && decryptedMessage && (
+          {/* Content */}
+          <div className="p-8 md:p-12">
+            {mode === "store" ? (
+              <div className="space-y-8">
                 <div>
-                  <p
-                    style={{
-                      fontSize: "11px",
-                      letterSpacing: "3px",
-                      color: "#00ff4180",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    DECRYPTED MESSAGE
-                  </p>
-                  <div className="decrypted-box">{decryptedMessage}</div>
-                  <p
-                    style={{
-                      fontSize: "10px",
-                      color: "#ff000080",
-                      marginTop: "8px",
-                      letterSpacing: "2px",
-                    }}
-                  >
-                    ⚠ THIS MESSAGE HAS BEEN PERMANENTLY DESTROYED
-                  </p>
+                  <label style={{ fontSize: "11px", letterSpacing: "3px", color: "#00ff4180" }}>PASSWORD</label>
+                  <input
+                    type="password"
+                    className="terminal-input mt-2"
+                    placeholder="enter encryption key..."
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
+                  />
                 </div>
-              )}
-            </div>
-          )}
+                <div>
+                  <label style={{ fontSize: "11px", letterSpacing: "3px", color: "#00ff4180" }}>SECRET MESSAGE</label>
+                  <textarea
+                    className="terminal-input mt-2 resize-none"
+                    placeholder="enter message to encrypt..."
+                    rows={7}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid #00ff4160",
+                      color: "#00ff41",
+                      fontFamily: "'Share Tech Mono', monospace",
+                      outline: "none",
+                      width: "100%",
+                      padding: "10px",
+                      fontSize: "14px",
+                      marginTop: "8px",
+                    }}
+                  />
+                </div>
+                <button className="terminal-btn w-full" onClick={handleStore} disabled={status.type === "loading"}>
+                  ENCRYPT &amp; STORE
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                <div>
+                  <label style={{ fontSize: "11px", letterSpacing: "3px", color: "#00ff4180" }}>PASSWORD</label>
+                  <input
+                    type="password"
+                    className="terminal-input mt-2"
+                    placeholder="enter decryption key..."
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (showDecrypted) { setShowDecrypted(false); setDecryptedMessage(""); }
+                    }}
+                    autoComplete="current-password"
+                  />
+                </div>
+                <button className="terminal-btn w-full" onClick={handleRetrieve} disabled={status.type === "loading"}>
+                  RETRIEVE &amp; DESTROY
+                </button>
 
-          {/* Status */}
-          {status.text && (
-            <div
-              className={`status-text mt-6 ${
-                status.type === "loading" ? "loading-dots" : ""
-              }`}
-              style={{
-                color:
-                  status.type === "error"
-                    ? "#ff4444"
-                    : status.type === "success"
-                    ? "#00ff41"
-                    : "#00ff4199",
-              }}
-            >
-              {status.text}
-            </div>
-          )}
+                {showDecrypted && decryptedMessage && (
+                  <div>
+                    <p style={{ fontSize: "11px", letterSpacing: "3px", color: "#00ff4180", marginBottom: "8px" }}>DECRYPTED MESSAGE</p>
+                    <div className="decrypted-box">{decryptedMessage}</div>
+                    <p style={{ fontSize: "10px", color: "#ff000080", marginTop: "8px", letterSpacing: "2px" }}>
+                      ⚠ THIS MESSAGE HAS BEEN PERMANENTLY DESTROYED
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {status.text && (
+              <div
+                className={`status-text mt-8 ${status.type === "loading" ? "loading-dots" : ""}`}
+                style={{
+                  color: status.type === "error" ? "#ff4444" : status.type === "success" ? "#00ff41" : "#00ff4199",
+                }}
+              >
+                {status.text}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Footer */}
-        <p
-          style={{
-            marginTop: "32px",
-            fontSize: "10px",
-            color: "#00ff4130",
-            letterSpacing: "3px",
-            textAlign: "center",
-          }}
-        >
+        <p style={{ marginTop: "24px", fontSize: "10px", color: "#00ff4130", letterSpacing: "3px", textAlign: "center" }}>
           SERVER SEES NOTHING · AES-GCM · SHA-256 · 24H AUTO-EXPIRY
         </p>
+        <a
+          href="/terms"
+          style={{ marginTop: "12px", fontSize: "10px", color: "#00ff4140", letterSpacing: "3px", textDecoration: "none", fontFamily: "'Share Tech Mono', monospace", transition: "color 0.2s" }}
+          onMouseEnter={(e) => ((e.target as HTMLAnchorElement).style.color = "#00ff41")}
+          onMouseLeave={(e) => ((e.target as HTMLAnchorElement).style.color = "#00ff4140")}
+        >
+          TERMS &amp; CONDITIONS
+        </a>
+
       </main>
     </>
   );
