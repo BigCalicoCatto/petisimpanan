@@ -97,7 +97,9 @@ function TermsPopup({ onAccept }: { onAccept: () => void }) {
       style={{
         background: "rgba(0,0,0,0.92)",
         opacity: visible ? 1 : 0,
+        pointerEvents: visible ? "auto" : "none",
         transition: "opacity 0.6s ease",
+        overflowY: "auto",
       }}
     >
       <div
@@ -105,58 +107,70 @@ function TermsPopup({ onAccept }: { onAccept: () => void }) {
           border: "1px solid #00ff41",
           boxShadow: "0 0 40px #00ff4140, inset 0 0 20px #00ff4108",
           background: "rgba(0,8,0,0.97)",
-          maxWidth: "480px",
+          maxWidth: "460px",
           width: "100%",
           padding: "40px 32px",
           fontFamily: "'Share Tech Mono', monospace",
+          margin: "auto",
         }}
       >
-        <div style={{ fontSize: "11px", color: "#00ff4160", letterSpacing: "4px", marginBottom: "24px" }}>
+        {/* System label */}
+        <div style={{ fontSize: "11px", color: "#00ff4160", letterSpacing: "4px", marginBottom: "24px", textAlign: "center" }}>
           SYSTEM INITIALIZING<span className="blink">_</span>
         </div>
 
-        <div
-          style={{
-            fontFamily: "'VT323', monospace",
-            fontSize: "clamp(28px, 6vw, 42px)",
-            color: "#00ff41",
-            textShadow: "0 0 20px #00ff41, 0 0 40px #00ff41",
-            letterSpacing: "6px",
-            marginBottom: "8px",
-          }}
-        >
-          <GlitchText text="PETI SIMPANAN" />
+        {/* Title — centred */}
+        <div style={{ textAlign: "center", marginBottom: "6px" }}>
+          <div
+            style={{
+              fontFamily: "'VT323', monospace",
+              fontSize: "clamp(28px, 6vw, 42px)",
+              color: "#00ff41",
+              textShadow: "0 0 20px #00ff41, 0 0 40px #00ff41",
+              letterSpacing: "6px",
+            }}
+          >
+            <GlitchText text="PETI SIMPANAN" />
+          </div>
+          <div style={{ fontSize: "10px", color: "#00ff4150", letterSpacing: "3px", marginTop: "6px" }}>
+            ZERO-KNOWLEDGE ENCRYPTED VAULT
+          </div>
         </div>
 
-        <div style={{ fontSize: "10px", color: "#00ff4150", letterSpacing: "3px", marginBottom: "28px" }}>
-          ZERO-KNOWLEDGE ENCRYPTED VAULT
+        {/* Divider */}
+        <div style={{ borderTop: "1px solid #00ff4120", margin: "28px 0" }} />
+
+        {/* How it works */}
+        <div style={{ marginBottom: "28px" }}>
+          <p style={{ fontSize: "10px", color: "#00ff4160", letterSpacing: "3px", marginBottom: "16px" }}>
+            HOW IT WORKS
+          </p>
+
+          {[
+            { step: "01", text: "Encrypt a message with a password" },
+            { step: "02", text: "Share the password with your recipient" },
+            { step: "03", text: "They retrieve it — message self-destructs" },
+          ].map(({ step, text }) => (
+            <div
+              key={step}
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                gap: "14px",
+                marginBottom: "12px",
+              }}
+            >
+              <span style={{ fontSize: "10px", color: "#00ff4150", letterSpacing: "2px", flexShrink: 0 }}>
+                {step}
+              </span>
+              <span style={{ fontSize: "13px", color: "#00ff41", lineHeight: 1.6 }}>
+                {text}
+              </span>
+            </div>
+          ))}
         </div>
 
-        <div
-          style={{
-            fontSize: "12px",
-            color: "#00ff4190",
-            lineHeight: "1.8",
-            marginBottom: "28px",
-            borderTop: "1px solid #00ff4120",
-            borderBottom: "1px solid #00ff4120",
-            padding: "20px 0",
-          }}
-        >
-          <p style={{ marginBottom: "12px" }}>&gt; By entering, you acknowledge and agree:</p>
-          <p style={{ marginBottom: "8px", paddingLeft: "12px" }}>— This service stores encrypted messages only. We never see your plaintext or password.</p>
-          <p style={{ marginBottom: "8px", paddingLeft: "12px" }}>— Messages self-destruct after retrieval or within 24 hours.</p>
-          <p style={{ marginBottom: "8px", paddingLeft: "12px" }}>— You will not use this service for illegal, harmful, or malicious purposes.</p>
-          <p style={{ paddingLeft: "12px" }}>— We are not liable for any misuse of this platform.</p>
-        </div>
-
-        <p style={{ fontSize: "11px", color: "#00ff4160", marginBottom: "24px" }}>
-          Full terms at{" "}
-          <a href="/terms" target="_blank" style={{ color: "#00ff41", textDecoration: "underline" }}>
-            /terms
-          </a>
-        </p>
-
+        {/* Accept button */}
         <button
           onClick={onAccept}
           style={{
@@ -183,8 +197,22 @@ function TermsPopup({ onAccept }: { onAccept: () => void }) {
             (e.target as HTMLButtonElement).style.boxShadow = "none";
           }}
         >
-          [ ACCEPT &amp; ENTER ]
+          [ AGREE &amp; ENTER ]
         </button>
+
+        {/* Disclaimer + links */}
+        <div style={{ borderTop: "1px solid #00ff4120", marginTop: "20px", paddingTop: "16px", textAlign: "center" }}>
+          <p style={{ fontSize: "10px", color: "#00ff4150", letterSpacing: "1px", lineHeight: 1.8 }}>
+            By entering you agree to our{" "}
+            <a href="/terms" target="_blank" style={{ color: "#00ff4190", textDecoration: "underline" }}>
+              Terms &amp; Conditions
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" target="_blank" style={{ color: "#00ff4190", textDecoration: "underline" }}>
+              Privacy Policy
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );
